@@ -24,7 +24,7 @@ add_executable(test
 target_link_libraries(
 	test
 	pico_stdlib
-	pico_bootrom
+	pico_stdio_usb
 )
 
 # create map/bin/hex file etc.

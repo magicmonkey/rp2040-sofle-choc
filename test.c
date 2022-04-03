@@ -1,5 +1,6 @@
-#include <pico/bootrom.h>
+#include <pico/stdio_usb.h>
 int main(int argc, char *argv[]) {
-	reset_usb_boot(0, 0);
+	stdio_usb_init();
+	while (1);
 	return 0;
 }
