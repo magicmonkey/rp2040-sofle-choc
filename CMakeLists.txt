@@ -25,6 +25,7 @@ target_link_libraries(
 	test
 	pico_stdlib
 	pico_stdio_usb
+	hardware_pio
 )
 
 # create map/bin/hex file etc.
