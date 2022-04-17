@@ -2,6 +2,9 @@
 #include "ws2812.pio.h"
 #include <time.h>
 #include <stdio.h>
+#include "pico-ssd1306/ssd1306.h"
+#include "pico-ssd1306/shapeRenderer/ShapeRenderer.h"
+#include "hardware/i2c.h"
 
 typedef struct machine {
 	PIO pio;
@@ -190,10 +193,30 @@ void buttonsChanged(buttonsPressed curr, buttonsPressed prev) {
 	}
 }
 
+void initI2C() {
+	// Set the special function of GPIO pins 2 and 3 to be I2C1
+	gpio_set_function(2, GPIO_FUNC_I2C);
+	gpio_set_function(3, GPIO_FUNC_I2C);
+	gpio_pull_up(2);
+	gpio_pull_up(3);
+	i2c_init(i2c1, 1000*1000);
+}
+
+void initOled() {
+	pico_ssd1306::SSD1306 display = pico_ssd1306::SSD1306(i2c1, 0x3C, pico_ssd1306::Size::W128xH32);
+
+	//display = pico_ssd1306::SSD1306(i2c1, 0x3D, pico_ssd1306::Size::W128xH32);
+	sleep_ms(250); // Give the display a little time to initialise
+	pico_ssd1306::drawLine(&display, 0, 0, 128, 32);
+	pico_ssd1306::drawLine(&display, 0, 32, 128, 0);
+	display.sendBuffer();
+}
+
 int main(int argc, char *argv[]) {
 	stdio_usb_init();
-
 	initScan();
+	initI2C();
+	initOled();
 
 	neoPixMachine = initNeopixel();
 
