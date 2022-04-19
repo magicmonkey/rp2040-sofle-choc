@@ -171,12 +171,19 @@ void setPixel(int pixNum, uint32_t col) {
 }
 
 void pressed(int btnNum) {
-	printf("%d pressed\n", btnNum);
+
+	uint8_t itf = 0;
+	char msg[100];
+	sprintf(msg, "%d pressed\n", btnNum);
+	tud_cdc_n_write(itf, msg, strlen(msg));
+
 	if (btnNum == 0) {
 		reset();
 	}
 	setPixel(btnNum, 0x33003300);
 	refreshPixels();
+
+	tud_cdc_n_write_flush(itf);
 }
 
 void unpressed(int btnNum) {
