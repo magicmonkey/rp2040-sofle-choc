@@ -1,4 +1,3 @@
-#include <pico/stdio_usb.h>
 #include <pico/bootrom.h>
 #include "ws2812.pio.h"
 #include <time.h>
@@ -234,7 +233,6 @@ void initOled() {
 }
 
 int main(int argc, char *argv[]) {
-	stdio_usb_init();
 	initScan();
 	initI2C();
 	initOled();

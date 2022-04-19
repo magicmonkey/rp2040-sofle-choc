@@ -31,7 +31,7 @@ target_include_directories(kbd PUBLIC
 target_link_libraries(
 	kbd PUBLIC
 	pico_stdlib
-	pico_stdio_usb
+	#pico_stdio_usb
 	pico_bootrom
 	tinyusb_board
 	tinyusb_device
