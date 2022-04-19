@@ -17,19 +17,27 @@ add_compile_options(-Wall
 
 add_subdirectory(pico-ssd1306)
 
-add_executable(kbd
-        kbd.cpp
+add_executable(kbd)
+
+target_sources(kbd PUBLIC
+        ${CMAKE_CURRENT_LIST_DIR}/kbd.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/usb_descriptors.c
         )
 
-# pull in common dependencies
+# Make sure TinyUSB can find tusb_config.h
+target_include_directories(kbd PUBLIC
+        ${CMAKE_CURRENT_LIST_DIR})
+
 target_link_libraries(
-	kbd
+	kbd PUBLIC
 	pico_stdlib
 	pico_stdio_usb
+	tinyusb_board
+	tinyusb_device
 	hardware_pio
 	pico_ssd1306
 	hardware_i2c
 )
 
-# create map/bin/hex file etc.
+# create map/bin/hex/uf2 file etc.
 pico_add_extra_outputs(kbd)

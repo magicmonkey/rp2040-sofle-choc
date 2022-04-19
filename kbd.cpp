@@ -7,6 +7,9 @@
 #include "pico-ssd1306/textRenderer/TextRenderer.h"
 #include "hardware/i2c.h"
 
+#include "bsp/board.h"
+#include "tusb.h"
+
 typedef struct machine {
 	PIO pio;
 	uint sm;
@@ -225,6 +228,7 @@ int main(int argc, char *argv[]) {
 	initScan();
 	initI2C();
 	initOled();
+	tusb_init();
 
 	neoPixMachine = initNeopixel();
 
@@ -243,6 +247,7 @@ int main(int argc, char *argv[]) {
 		}
 		prev = curr;
 		//setNeopixel(m, 0x11001100);
+		tud_task();
 	}
 }
 
