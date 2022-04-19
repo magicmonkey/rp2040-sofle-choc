@@ -32,6 +32,7 @@ target_link_libraries(
 	kbd PUBLIC
 	pico_stdlib
 	pico_stdio_usb
+	pico_bootrom
 	tinyusb_board
 	tinyusb_device
 	hardware_pio

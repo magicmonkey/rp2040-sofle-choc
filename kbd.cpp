@@ -1,4 +1,5 @@
 #include <pico/stdio_usb.h>
+#include <pico/bootrom.h>
 #include "ws2812.pio.h"
 #include <time.h>
 #include <stdio.h>
@@ -57,12 +58,18 @@ void setNeopixel(machine m, uint32_t val) {
 	pio_sm_put_blocking(m.pio, m.sm, val);
 }
 
+void reset() {
+	reset_usb_boot(0, 0);
+}
+
 void initScan() {
+	// Rows are outputs
 	gpio_init(5);  gpio_set_dir(5,  true);
 	gpio_init(6);  gpio_set_dir(6,  true);
 	gpio_init(7);  gpio_set_dir(7,  true);
 	gpio_init(8);  gpio_set_dir(8,  true);
 	gpio_init(9);  gpio_set_dir(9,  true);
+	// Cols are inputs with pull-ups
 	gpio_init(21); gpio_set_dir(21, false); gpio_pull_up(21);
 	gpio_init(23); gpio_set_dir(23, false); gpio_pull_up(23);
 	gpio_init(20); gpio_set_dir(20, false); gpio_pull_up(20);
@@ -166,6 +173,9 @@ void setPixel(int pixNum, uint32_t col) {
 
 void pressed(int btnNum) {
 	printf("%d pressed\n", btnNum);
+	if (btnNum == 0) {
+		reset();
+	}
 	setPixel(btnNum, 0x33003300);
 	refreshPixels();
 }
