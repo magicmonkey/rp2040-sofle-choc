@@ -180,9 +180,19 @@ void pressed(int btnNum) {
 	if (btnNum == 0) {
 		reset();
 	}
-	setPixel(btnNum, 0x33003300);
-	refreshPixels();
 
+	uint8_t scan[6] = {4,0,0,0,0,0}; // We can send up to 6 scan codes at once
+	if (tud_hid_ready()) {
+		sprintf(msg, "Sending key press\n", btnNum);
+		tud_cdc_n_write(itf, msg, strlen(msg));
+		tud_hid_keyboard_report(HID_ITF_PROTOCOL_KEYBOARD, 0, scan);
+		setPixel(btnNum, 0x33000000);
+	} else {
+		sprintf(msg, "Not sending key press\n", btnNum);
+		tud_cdc_n_write(itf, msg, strlen(msg));
+		setPixel(btnNum, 0x00330000);
+	}
+	refreshPixels();
 	tud_cdc_n_write_flush(itf);
 }
 
