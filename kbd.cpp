@@ -9,6 +9,7 @@
 
 #include "bsp/board.h"
 #include "tusb.h"
+#include "usb_descriptors.h"
 
 typedef struct machine {
 	PIO pio;
@@ -175,25 +176,14 @@ void pressed(int btnNum) {
 	uint8_t itf = 0;
 	char msg[100];
 	sprintf(msg, "%d pressed\n", btnNum);
-	tud_cdc_n_write(itf, msg, strlen(msg));
+	//tud_cdc_n_write(itf, msg, strlen(msg));
+	//tud_cdc_n_write_flush(itf);
 
 	if (btnNum == 0) {
 		reset();
 	}
 
-	uint8_t scan[6] = {4,0,0,0,0,0}; // We can send up to 6 scan codes at once
-	if (tud_hid_ready()) {
-		sprintf(msg, "Sending key press\n", btnNum);
-		tud_cdc_n_write(itf, msg, strlen(msg));
-		tud_hid_keyboard_report(HID_ITF_PROTOCOL_KEYBOARD, 0, scan);
-		setPixel(btnNum, 0x33000000);
-	} else {
-		sprintf(msg, "Not sending key press\n", btnNum);
-		tud_cdc_n_write(itf, msg, strlen(msg));
-		setPixel(btnNum, 0x00330000);
-	}
 	refreshPixels();
-	tud_cdc_n_write_flush(itf);
 }
 
 void unpressed(int btnNum) {
@@ -249,6 +239,80 @@ void initOled() {
 	display.sendBuffer();
 }
 
+static void send_hid_report(uint8_t report_id, uint32_t btn)
+{
+	// skip if hid is not ready yet
+	if ( !tud_hid_ready() ) return;
+
+	switch(report_id)
+	{
+		case REPORT_ID_KEYBOARD:
+			{
+				// use to avoid send multiple consecutive zero report for keyboard
+				static bool has_keyboard_key = false;
+
+				if ( btn )
+				{
+					uint8_t keycode[6] = { 0 };
+					keycode[0] = HID_KEY_A;
+
+					tud_hid_keyboard_report(REPORT_ID_KEYBOARD, 0, keycode);
+					has_keyboard_key = true;
+				}else
+				{
+					// send empty key report if previously has key pressed
+					if (has_keyboard_key) tud_hid_keyboard_report(REPORT_ID_KEYBOARD, 0, NULL);
+					has_keyboard_key = false;
+				}
+			}
+			break;
+	}
+
+}
+
+void tud_hid_report_complete_cb(uint8_t instance, uint8_t const* report, uint8_t len)
+{
+  (void) instance;
+  (void) len;
+
+  uint8_t next_report_id = report[0] + 1;
+
+  if (next_report_id < REPORT_ID_COUNT)
+  {
+    send_hid_report(next_report_id, 1);
+  }
+}
+
+void hid_task(void)
+{
+  // Poll every 10ms
+  const uint32_t interval_ms = 10;
+  static uint32_t start_ms = 0;
+
+  if ( board_millis() - start_ms < interval_ms) return; // not enough time
+  start_ms += interval_ms;
+
+  uint32_t const btn = 1;
+
+  // Remote wakeup
+  if ( tud_suspended() && btn )
+  {
+    // Wake up host if we are in suspend mode
+    // and REMOTE_WAKEUP feature is enabled by host
+	for (int i = 0; i < 30; i++) {
+		setPixel(i, 0x00110000);
+	}
+    tud_remote_wakeup();
+  }else
+  {
+    // Send the 1st of report chain, the rest will be sent by tud_hid_report_complete_cb()
+	for (int i = 0; i < 30; i++) {
+		setPixel(i, 0x11001100);
+	}
+    send_hid_report(REPORT_ID_KEYBOARD, btn);
+  }
+}
+
 int main(int argc, char *argv[]) {
 	initScan();
 	initI2C();
@@ -266,13 +330,45 @@ int main(int argc, char *argv[]) {
 	refreshPixels();
 
 	while (1) {
+		tud_task();
 		curr = scan();
 		if (curr != prev) {
 			buttonsChanged(curr, prev);
 		}
 		prev = curr;
 		//setNeopixel(m, 0x11001100);
-		tud_task();
+		hid_task();
 	}
+}
+
+uint16_t tud_hid_get_report_cb(uint8_t instance, uint8_t report_id, hid_report_type_t report_type, uint8_t* buffer, uint16_t reqlen)
+{
+  // TODO not Implemented
+  (void) instance;
+  (void) report_id;
+  (void) report_type;
+  (void) buffer;
+  (void) reqlen;
+
+  return 0;
+}
+
+// Invoked when received SET_REPORT control request or
+// received data on OUT endpoint ( Report ID = 0, Type = 0 )
+void tud_hid_set_report_cb(uint8_t instance, uint8_t report_id, hid_report_type_t report_type, uint8_t const* buffer, uint16_t bufsize)
+{
+  (void) instance;
+
+  if (report_type == HID_REPORT_TYPE_OUTPUT)
+  {
+    // Set keyboard LED e.g Capslock, Numlock etc...
+    if (report_id == REPORT_ID_KEYBOARD)
+    {
+      // bufsize should be (at least) 1
+      if ( bufsize < 1 ) return;
+
+	  // Stuff here
+    }
+  }
 }
 
