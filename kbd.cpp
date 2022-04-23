@@ -17,6 +17,8 @@ typedef struct machine {
 } machine;
 
 typedef uint32_t buttonsPressed;
+buttonsPressed curr;
+uint8_t keys[6];
 
 uint32_t pixels[30];
 int keyToLed[29] = {
@@ -25,6 +27,14 @@ int keyToLed[29] = {
         26,23,18,13, 8, 2,
         25,24,17,14, 7, 3,
               16,15, 6, 5, 4};
+
+uint8_t keyToHid[30] = {
+	HID_KEY_A,   HID_KEY_1, HID_KEY_2, HID_KEY_3, HID_KEY_4, HID_KEY_5,
+	HID_KEY_TAB, HID_KEY_Q, HID_KEY_W, HID_KEY_E, HID_KEY_R, HID_KEY_T,
+	HID_KEY_A,   HID_KEY_A, HID_KEY_S, HID_KEY_D, HID_KEY_F, HID_KEY_G,
+	HID_KEY_A,   HID_KEY_Z, HID_KEY_X, HID_KEY_C, HID_KEY_V, HID_KEY_B,
+	HID_KEY_A,   HID_KEY_A, HID_KEY_A, HID_KEY_A, HID_KEY_A, HID_KEY_A,
+};
 
 machine neoPixMachine;
 
@@ -173,22 +183,28 @@ void setPixel(int pixNum, uint32_t col) {
 
 void pressed(int btnNum) {
 
-	uint8_t itf = 0;
-	char msg[100];
-	sprintf(msg, "%d pressed\n", btnNum);
-	//tud_cdc_n_write(itf, msg, strlen(msg));
-	//tud_cdc_n_write_flush(itf);
+	setPixel(btnNum, 0x55000000);
 
 	if (btnNum == 0) {
 		reset();
+	}
+
+	for (int i=0; i<6; i++) {
+		if (keys[i] == 0) {
+			keys[i] = btnNum;
+		}
 	}
 
 	refreshPixels();
 }
 
 void unpressed(int btnNum) {
-	printf("%d unpressed\n", btnNum);
 	setPixel(btnNum, 0x05050500);
+	for (int i=0; i<6; i++) {
+		if (keys[i] == btnNum) {
+			keys[i] = 0;
+		}
+	}
 	refreshPixels();
 }
 
@@ -239,33 +255,40 @@ void initOled() {
 	display.sendBuffer();
 }
 
-static void send_hid_report(uint8_t report_id, uint32_t btn)
-{
+
+
+void translateKeysToHid(uint8_t *srcKeys, uint8_t *dstKeys) {
+	for (int i=0; i<6; i++) {
+		dstKeys[i] = keyToHid[srcKeys[i]];
+	}
+	return;
+}
+
+static void send_hid_report() {
 	// skip if hid is not ready yet
 	if ( !tud_hid_ready() ) return;
 
-	switch(report_id)
-	{
-		case REPORT_ID_KEYBOARD:
-			{
-				// use to avoid send multiple consecutive zero report for keyboard
-				static bool has_keyboard_key = false;
+	// use to avoid send multiple consecutive zero report for keyboard
+	static bool has_keyboard_key = false;
 
-				if ( btn )
-				{
-					uint8_t keycode[6] = { 0 };
-					keycode[0] = HID_KEY_A;
-
-					tud_hid_keyboard_report(REPORT_ID_KEYBOARD, 0, keycode);
-					has_keyboard_key = true;
-				}else
-				{
-					// send empty key report if previously has key pressed
-					if (has_keyboard_key) tud_hid_keyboard_report(REPORT_ID_KEYBOARD, 0, NULL);
-					has_keyboard_key = false;
-				}
-			}
+	bool somethingPressed = false;
+	for (int i=0; i<6; i++) {
+		if (keys[i] != 0) {
+			somethingPressed = true;
 			break;
+		}
+	}
+
+	uint8_t keysHid[6];
+	translateKeysToHid(keys, keysHid);
+
+	if (somethingPressed) {
+		tud_hid_keyboard_report(REPORT_ID_KEYBOARD, 0, keysHid);
+		has_keyboard_key = true;
+	} else {
+		// send empty key report if previously has key pressed
+		if (has_keyboard_key) tud_hid_keyboard_report(REPORT_ID_KEYBOARD, 0, NULL);
+		has_keyboard_key = false;
 	}
 
 }
@@ -277,9 +300,8 @@ void tud_hid_report_complete_cb(uint8_t instance, uint8_t const* report, uint8_t
 
   uint8_t next_report_id = report[0] + 1;
 
-  if (next_report_id < REPORT_ID_COUNT)
-  {
-    send_hid_report(next_report_id, 1);
+  if (next_report_id < REPORT_ID_COUNT) {
+    send_hid_report();
   }
 }
 
@@ -292,24 +314,24 @@ void hid_task(void)
   if ( board_millis() - start_ms < interval_ms) return; // not enough time
   start_ms += interval_ms;
 
-  uint32_t const btn = 1;
+  bool somethingPressed = false;
+  for (int i=0; i<6; i++) {
+  	  if (keys[i] != 0) {
+  	  	  somethingPressed = true;
+  	  	  break;
+	  }
+  }
 
-  // Remote wakeup
-  if ( tud_suspended() && btn )
-  {
-    // Wake up host if we are in suspend mode
-    // and REMOTE_WAKEUP feature is enabled by host
-	for (int i = 0; i < 30; i++) {
-		setPixel(i, 0x00110000);
+  if (somethingPressed) {
+	// Remote wakeup
+	if (tud_suspended()) {
+		// Wake up host if we are in suspend mode
+		// and REMOTE_WAKEUP feature is enabled by host
+		tud_remote_wakeup();
+	}else {
+		// Send the 1st of report chain, the rest will be sent by tud_hid_report_complete_cb()
+		send_hid_report();
 	}
-    tud_remote_wakeup();
-  }else
-  {
-    // Send the 1st of report chain, the rest will be sent by tud_hid_report_complete_cb()
-	for (int i = 0; i < 30; i++) {
-		setPixel(i, 0x11001100);
-	}
-    send_hid_report(REPORT_ID_KEYBOARD, btn);
   }
 }
 
@@ -321,7 +343,6 @@ int main(int argc, char *argv[]) {
 
 	neoPixMachine = initNeopixel();
 
-	buttonsPressed curr;
 	buttonsPressed prev;
 
 	for (int i = 0; i < 30; i++) {
@@ -355,8 +376,7 @@ uint16_t tud_hid_get_report_cb(uint8_t instance, uint8_t report_id, hid_report_t
 
 // Invoked when received SET_REPORT control request or
 // received data on OUT endpoint ( Report ID = 0, Type = 0 )
-void tud_hid_set_report_cb(uint8_t instance, uint8_t report_id, hid_report_type_t report_type, uint8_t const* buffer, uint16_t bufsize)
-{
+void tud_hid_set_report_cb(uint8_t instance, uint8_t report_id, hid_report_type_t report_type, uint8_t const* buffer, uint16_t bufsize) {
   (void) instance;
 
   if (report_type == HID_REPORT_TYPE_OUTPUT)
@@ -367,7 +387,7 @@ void tud_hid_set_report_cb(uint8_t instance, uint8_t report_id, hid_report_type_
       // bufsize should be (at least) 1
       if ( bufsize < 1 ) return;
 
-	  // Stuff here
+	  // Stuff here, like change the caps lock light
     }
   }
 }
