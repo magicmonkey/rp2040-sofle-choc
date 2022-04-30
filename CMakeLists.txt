@@ -15,31 +15,21 @@ add_compile_options(-Wall
         -Wno-maybe-uninitialized
         )
 
-add_subdirectory(oled)
-add_subdirectory(usb)
-add_subdirectory(neopixel)
 add_subdirectory(keyboard)
 
 add_executable(kbd)
 
 target_sources(kbd PUBLIC
-        ${CMAKE_CURRENT_LIST_DIR}/main.c
+        ${CMAKE_CURRENT_LIST_DIR}/main.cpp
         )
 
 # Make sure TinyUSB can find tusb_config.h
-target_include_directories(kbd PUBLIC
-        ${CMAKE_CURRENT_LIST_DIR}/usb)
+#target_include_directories(kbd PUBLIC
+#        ${CMAKE_CURRENT_LIST_DIR}/usb)
 
 target_link_libraries(
 	kbd PUBLIC
-	pico_stdlib
-	#pico_stdio_usb
-	pico_bootrom
-	tinyusb_board
-	tinyusb_device
-	hardware_pio
-	pico_ssd1306
-	hardware_i2c
+	keyboard
 )
 
 # create map/bin/hex/uf2 file etc.

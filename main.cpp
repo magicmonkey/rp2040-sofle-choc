@@ -1,13 +1,13 @@
-#include "oled/oled.h"
-#include "usb/usb.h"
-#include "neopixel/neopixel.h"
 #include "keyboard/keyboard.h"
+//#include "oled/oled.h"
+//#include "usb/usb.h"
+//#include "neopixel/neopixel.h"
 
 int main(int argc, char *argv[]) {
 	init_keyboard();
-	init_oled();
-	init_usb();
-	init_neopixel();
+	//init_oled();
+	//init_usb();
+	//init_neopixel();
 
 	/*
 	buttonsPressed prev;
