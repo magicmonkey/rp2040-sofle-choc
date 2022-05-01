@@ -1,3 +1,6 @@
+Deliberately cripping the syntax of this file as it shouldn't be being used anywhere, and will be removed post-refactor
+
+
 #include <pico/bootrom.h>
 #include "ws2812.pio.h"
 #include <time.h>

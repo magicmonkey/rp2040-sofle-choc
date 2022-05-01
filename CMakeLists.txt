@@ -13,32 +13,25 @@ add_compile_options(-Wall
         -Wno-format          # int != int32_t as far as the compiler is concerned because gcc has int32_t as long int
         -Wno-unused-function # we have some for the docs that aren't called
         -Wno-maybe-uninitialized
-        )
+)
 
-add_subdirectory(pico-ssd1306)
+add_executable(kbd main.c)
 
-add_executable(kbd)
-
-target_sources(kbd PUBLIC
-        ${CMAKE_CURRENT_LIST_DIR}/kbd.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/usb_descriptors.c
-        )
-
-# Make sure TinyUSB can find tusb_config.h
-target_include_directories(kbd PUBLIC
-        ${CMAKE_CURRENT_LIST_DIR})
+add_subdirectory(keyboard)
+add_subdirectory(oled)
+add_subdirectory(neopixel)
+add_subdirectory(usb)
 
 target_link_libraries(
 	kbd PUBLIC
 	pico_stdlib
 	#pico_stdio_usb
-	pico_bootrom
-	tinyusb_board
-	tinyusb_device
-	hardware_pio
-	pico_ssd1306
-	hardware_i2c
+	keyboard
+	oled
+	neopixel
+	usb
 )
 
 # create map/bin/hex/uf2 file etc.
 pico_add_extra_outputs(kbd)
+
