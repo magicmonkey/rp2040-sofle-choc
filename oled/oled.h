@@ -1,7 +1,7 @@
 #ifndef OLED_H
 #define OLED_H
 
-void init_oled();
+void oled_init();
 
 #include "hardware/gpio.h"
 #include "hardware/i2c.h"

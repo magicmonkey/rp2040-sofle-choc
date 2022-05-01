@@ -1,12 +1,8 @@
 #ifndef KEYBOARD_H
 #define KEYBOARD_H
 
-#include <stdio.h>
-#include <pico/bootrom.h>
-#include <pico/time.h>
-#include <hardware/gpio.h>
-
-void init_keyboard();
+void keyboard_init();
+void keyboard_task();
 
 // From <class/hid/hid.h>, copied here to avoid pulling the whole USB library in
 #define HID_KEY_NONE                      0x00

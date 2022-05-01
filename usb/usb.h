@@ -1,6 +1,6 @@
 #ifndef USB_H
 #define USB_H
 
-void init_usb();
+void usb_init();
 
 #endif

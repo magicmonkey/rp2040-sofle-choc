@@ -4,33 +4,19 @@
 #include "usb/usb.h"
 
 int main(int argc, char *argv[]) {
-	init_keyboard();
-	init_oled();
-	init_neopixel();
-	init_usb();
+	keyboard_init();
+	oled_init();
+	neopixel_init();
+	usb_init();
 
 	setAllPixelsTo(0x05050500);
 	refreshPixels();
 
-	/*
-	for (int i = 0; i < 30; i++) {
-		setPixel(i, 0x05050500);
-	}
-	*/
-
-	/*
-	buttonsPressed prev;
-
 	while (1) {
-		tud_task();
-		curr = scan();
-		if (curr != prev) {
-			buttonsChanged(curr, prev);
-		}
-		prev = curr;
+		//tud_task();
 		//setNeopixel(m, 0x11001100);
-		hid_task();
+		keyboard_task();
+		//hid_task();
 	}
-	*/
 }
 

@@ -26,7 +26,7 @@ machine initNeopixelStateMachine();
 machine neoPixMachine;
 uint32_t pixels[NUM_PIXELS];
 
-void init_neopixel() {
+void neopixel_init() {
 	neoPixMachine = initNeopixelStateMachine();
 }
 

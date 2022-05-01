@@ -1,5 +1,8 @@
 #include "keyboard.h"
+
 #include "../neopixel/neopixel.h"
+#include <pico/stdlib.h>
+#include <pico/bootrom.h> // For reset_usb_boot
 
 typedef uint32_t buttonsPressed;
 buttonsPressed curr;
@@ -169,7 +172,17 @@ void translateKeysToHid(uint8_t *srcKeys, uint8_t *dstKeys) {
 	return;
 }
 
-void init_keyboard() {
+void keyboard_init() {
 	init_scan();
+}
+
+void keyboard_task() {
+	static buttonsPressed prev, curr;
+
+	curr = scan();
+	if (curr != prev) {
+		buttonsChanged(curr, prev);
+	}
+	prev = curr;
 }
 
