@@ -1,16 +1,9 @@
 #include "keyboard.h"
+#include "../neopixel/neopixel.h"
 
 typedef uint32_t buttonsPressed;
 buttonsPressed curr;
 uint8_t keys[6];
-
-uint32_t pixels[30];
-int keyToLed[29] = {
-        28,21,20,11,10, 0,
-        27,22,19,12, 9, 1,
-        26,23,18,13, 8, 2,
-        25,24,17,14, 7, 3,
-              16,15, 6, 5, 4};
 
 uint8_t keyToHid[30] = {
 	HID_KEY_A,   HID_KEY_1, HID_KEY_2, HID_KEY_3, HID_KEY_4, HID_KEY_5,

@@ -9,13 +9,17 @@ int main(int argc, char *argv[]) {
 	init_neopixel();
 	init_usb();
 
-	/*
-	buttonsPressed prev;
+	setAllPixelsTo(0x05050500);
+	refreshPixels();
 
+	/*
 	for (int i = 0; i < 30; i++) {
 		setPixel(i, 0x05050500);
 	}
-	refreshPixels();
+	*/
+
+	/*
+	buttonsPressed prev;
 
 	while (1) {
 		tud_task();
