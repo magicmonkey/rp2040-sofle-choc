@@ -1,3 +1,6 @@
+#ifndef KEYBOARD_H
+#define KEYBOARD_H
+
 #include <stdio.h>
 #include <pico/bootrom.h>
 #include <pico/time.h>
@@ -5,7 +8,7 @@
 
 void init_keyboard();
 
-// From <class/hid/hid.h>
+// From <class/hid/hid.h>, copied here to avoid pulling the whole USB library in
 #define HID_KEY_NONE                      0x00
 #define HID_KEY_A                         0x04
 #define HID_KEY_B                         0x05
@@ -178,3 +181,4 @@ void init_keyboard();
 #define HID_KEY_ALT_RIGHT                 0xE6
 #define HID_KEY_GUI_RIGHT                 0xE7
 
+#endif

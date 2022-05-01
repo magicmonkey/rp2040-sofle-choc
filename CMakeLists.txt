@@ -13,15 +13,15 @@ add_compile_options(-Wall
         -Wno-format          # int != int32_t as far as the compiler is concerned because gcc has int32_t as long int
         -Wno-unused-function # we have some for the docs that aren't called
         -Wno-maybe-uninitialized
-        )
+)
+
+add_executable(kbd main.cpp)
 
 add_subdirectory(keyboard)
 
-add_executable(kbd)
-
-target_sources(kbd PUBLIC
-        ${CMAKE_CURRENT_LIST_DIR}/main.cpp
-        )
+#target_sources(kbd PUBLIC
+#        main.cpp
+#)
 
 # Make sure TinyUSB can find tusb_config.h
 #target_include_directories(kbd PUBLIC
