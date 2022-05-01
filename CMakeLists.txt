@@ -15,7 +15,7 @@ add_compile_options(-Wall
         -Wno-maybe-uninitialized
 )
 
-add_executable(kbd main.cpp)
+add_executable(kbd main.c)
 
 add_subdirectory(keyboard)
 
@@ -34,3 +34,4 @@ target_link_libraries(
 
 # create map/bin/hex/uf2 file etc.
 pico_add_extra_outputs(kbd)
+
