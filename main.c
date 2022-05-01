@@ -1,12 +1,10 @@
 #include "keyboard/keyboard.h"
 #include <stdio.h>
-#include <pico/stdio_usb.h>
 #include "oled/oled.h"
 #include "neopixel/neopixel.h"
 #include "usb/usb.h"
 
 int main(int argc, char *argv[]) {
-	stdio_usb_init();
 	sleep_ms(5000);
 	printf("1\n");
 	keyboard_init();
@@ -24,10 +22,9 @@ int main(int argc, char *argv[]) {
 	printf("7\n");
 
 	while (1) {
-		//tud_task();
 		//setNeopixel(m, 0x11001100);
 		keyboard_task();
-		//hid_task();
+		usb_task();
 	}
 }
 

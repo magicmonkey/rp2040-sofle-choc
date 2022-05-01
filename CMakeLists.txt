@@ -25,7 +25,7 @@ add_subdirectory(usb)
 target_link_libraries(
 	kbd PUBLIC
 	pico_stdlib
-	pico_stdio_usb
+	#pico_stdio_usb
 	keyboard
 	oled
 	neopixel

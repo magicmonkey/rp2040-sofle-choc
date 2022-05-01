@@ -10,13 +10,20 @@ uint8_t keys[6];
 
 #define NUM_BUTTONS 30
 
-uint8_t keyToHid[NUM_BUTTONS] = {
-	HID_KEY_A,   HID_KEY_1, HID_KEY_2, HID_KEY_3, HID_KEY_4, HID_KEY_5,
-	HID_KEY_TAB, HID_KEY_Q, HID_KEY_W, HID_KEY_E, HID_KEY_R, HID_KEY_T,
-	HID_KEY_A,   HID_KEY_A, HID_KEY_S, HID_KEY_D, HID_KEY_F, HID_KEY_G,
-	HID_KEY_A,   HID_KEY_Z, HID_KEY_X, HID_KEY_C, HID_KEY_V, HID_KEY_B,
-	HID_KEY_A,   HID_KEY_A, HID_KEY_A, HID_KEY_A, HID_KEY_A, HID_KEY_A,
-};
+uint8_t* keyboard_get_keys_pressed() {
+	return keys;
+}
+
+bool is_something_pressed() {
+	bool somethingPressed = false;
+	for (int i=0; i<6; i++) {
+		if (keys[i] != 0) {
+			somethingPressed = true;
+			break;
+		}
+	}
+	return somethingPressed;
+}
 
 void reset() {
 	reset_usb_boot(0, 0);
@@ -165,13 +172,6 @@ void buttonsChanged(buttonsPressed curr, buttonsPressed prev) {
 			}
 		}
 	}
-}
-
-void translateKeysToHid(uint8_t *srcKeys, uint8_t *dstKeys) {
-	for (int i=0; i<6; i++) {
-		dstKeys[i] = keyToHid[srcKeys[i]];
-	}
-	return;
 }
 
 void keyboard_init() {
