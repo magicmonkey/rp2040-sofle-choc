@@ -134,11 +134,16 @@ void pressed(int btnNum) {
 		reset();
 	}
 
+	// Find a free button slot
+	/*
 	for (int i=0; i<6; i++) {
 		if (keys[i] == 0) {
 			keys[i] = btnNum;
+			break;
 		}
 	}
+	*/
+	keys[0] = btnNum;
 
 	refreshPixels();
 }
@@ -175,12 +180,21 @@ void buttonsChanged(buttonsPressed curr, buttonsPressed prev) {
 }
 
 void keyboard_init() {
+	for (int i=0; i<6; i++) {
+		keys[i] = 0;
+	}
 	init_scan();
 }
 
 void keyboard_task() {
 	buttonsPressed curr;
 	static buttonsPressed prev;
+
+	const uint32_t interval_ms = 10;
+	static uint64_t prev_time;
+	uint64_t curr_time = get_absolute_time();
+	if ( curr_time - prev_time < interval_ms) return;
+	prev_time = curr_time;
 
 	curr = scan();
 	if (curr != prev) {

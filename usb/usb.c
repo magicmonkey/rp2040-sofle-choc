@@ -5,7 +5,7 @@
 #include "bsp/board.h"
 #include "../keyboard/keyboard.h"
 
-uint8_t keyToHid[30] = {
+uint8_t keyToHid[31] = {0,
 	HID_KEY_A,   HID_KEY_1, HID_KEY_2, HID_KEY_3, HID_KEY_4, HID_KEY_5,
 	HID_KEY_TAB, HID_KEY_Q, HID_KEY_W, HID_KEY_E, HID_KEY_R, HID_KEY_T,
 	HID_KEY_A,   HID_KEY_A, HID_KEY_S, HID_KEY_D, HID_KEY_F, HID_KEY_G,
@@ -23,8 +23,13 @@ void usb_task() {
 }
 
 void translateKeysToHid(uint8_t *srcKeys, uint8_t *dstKeys) {
+	/*
 	for (int i=0; i<6; i++) {
 		dstKeys[i] = keyToHid[srcKeys[i]];
+	}
+	*/
+	if (srcKeys[0] > 0) {
+		dstKeys[0] = keyToHid[srcKeys[0]+1];
 	}
 	return;
 }
@@ -39,6 +44,7 @@ static void send_hid_report() {
 	bool somethingPressed = is_something_pressed();
 
 	uint8_t keysHid[6];
+	for (int i=0; i<6; i++) keysHid[i] = 0;
 	translateKeysToHid(keyboard_get_keys_pressed(), keysHid);
 
 	if (somethingPressed) {
