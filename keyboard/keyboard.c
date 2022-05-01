@@ -24,7 +24,7 @@ void reset() {
 	reset_usb_boot(0, 0);
 }
 
-void initScan() {
+void init_scan() {
 	// Rows are outputs
 	gpio_init(5);  gpio_set_dir(5,  true);
 	gpio_init(6);  gpio_set_dir(6,  true);
@@ -177,5 +177,6 @@ void translateKeysToHid(uint8_t *srcKeys, uint8_t *dstKeys) {
 }
 
 void init_keyboard() {
+	init_scan();
 }
 

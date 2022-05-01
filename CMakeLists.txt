@@ -19,11 +19,13 @@ add_executable(kbd main.c)
 
 add_subdirectory(keyboard)
 add_subdirectory(oled)
+add_subdirectory(neopixel)
 
 target_link_libraries(
 	kbd PUBLIC
 	keyboard
 	oled
+	neopixel
 )
 
 # create map/bin/hex/uf2 file etc.
