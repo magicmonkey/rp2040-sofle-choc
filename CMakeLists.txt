@@ -18,6 +18,7 @@ add_compile_options(-Wall
 add_executable(kbd main.c)
 
 add_subdirectory(keyboard)
+add_subdirectory(oled)
 
 #target_sources(kbd PUBLIC
 #        main.cpp
@@ -30,6 +31,7 @@ add_subdirectory(keyboard)
 target_link_libraries(
 	kbd PUBLIC
 	keyboard
+	oled
 )
 
 # create map/bin/hex/uf2 file etc.
