@@ -1,4 +1,10 @@
+extern "C" {
 #include "oled.h"
+}
+
+#include "pico-ssd1306/ssd1306.h"
+#include "pico-ssd1306/shapeRenderer/ShapeRenderer.h"
+#include "pico-ssd1306/textRenderer/TextRenderer.h"
 
 void initI2C() {
 	// Set the special function of GPIO pins 2 and 3 to be I2C1
@@ -25,3 +31,4 @@ void init_oled() {
 	);
 	display.sendBuffer();
 }
+

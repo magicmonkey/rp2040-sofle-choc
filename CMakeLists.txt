@@ -20,14 +20,6 @@ add_executable(kbd main.c)
 add_subdirectory(keyboard)
 add_subdirectory(oled)
 
-#target_sources(kbd PUBLIC
-#        main.cpp
-#)
-
-# Make sure TinyUSB can find tusb_config.h
-#target_include_directories(kbd PUBLIC
-#        ${CMAKE_CURRENT_LIST_DIR}/usb)
-
 target_link_libraries(
 	kbd PUBLIC
 	keyboard
