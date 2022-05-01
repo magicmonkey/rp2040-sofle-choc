@@ -16,6 +16,9 @@ void initI2C() {
 }
 
 void oled_init() {
+}
+
+void oled_init_orig() {
 	pico_ssd1306::SSD1306 display = pico_ssd1306::SSD1306(i2c1, 0x3C, pico_ssd1306::Size::W128xH32);
 
 	sleep_ms(250); // Give the display a little time to initialise

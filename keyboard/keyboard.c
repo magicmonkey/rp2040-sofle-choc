@@ -8,7 +8,9 @@ typedef uint32_t buttonsPressed;
 buttonsPressed curr;
 uint8_t keys[6];
 
-uint8_t keyToHid[30] = {
+#define NUM_BUTTONS 30
+
+uint8_t keyToHid[NUM_BUTTONS] = {
 	HID_KEY_A,   HID_KEY_1, HID_KEY_2, HID_KEY_3, HID_KEY_4, HID_KEY_5,
 	HID_KEY_TAB, HID_KEY_Q, HID_KEY_W, HID_KEY_E, HID_KEY_R, HID_KEY_T,
 	HID_KEY_A,   HID_KEY_A, HID_KEY_S, HID_KEY_D, HID_KEY_F, HID_KEY_G,
@@ -152,7 +154,7 @@ inline bool isPressed(buttonsPressed b, int btnNum) {
 }
 
 void buttonsChanged(buttonsPressed curr, buttonsPressed prev) {
-	for (int i=0; i<30; i++) {
+	for (int i=0; i<NUM_BUTTONS; i++) {
 		if (isPressed(curr, i)) {
 			if (!isPressed(prev, i)) {
 				pressed(i);
@@ -177,7 +179,8 @@ void keyboard_init() {
 }
 
 void keyboard_task() {
-	static buttonsPressed prev, curr;
+	buttonsPressed curr;
+	static buttonsPressed prev;
 
 	curr = scan();
 	if (curr != prev) {
